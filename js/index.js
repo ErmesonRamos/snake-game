@@ -1,12 +1,75 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
-const draw = () => {
-  ctx.fillStyle = 'red'
-  ctx.fillRect(10, 10, 50, 50);
+const size = 30;
 
-  ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-  ctx.fillRect(30, 30, 55, 50);
-};
+const snake = [
+  { x: 200, y: 200 },
+  { x: 230, y: 200 },
+  { x: 260, y: 200 },
+]
 
-draw();
+let direction, loopId;
+
+const drawSnake = () => {
+  ctx.fillStyle = "#ddd";
+  snake.forEach((position, index) => {
+    if (index == snake.length - 1) {
+      ctx.fillStyle = "white"
+    }
+    ctx.fillRect(position.x, position.y, size, size);
+  });
+
+  
+}
+
+const moveSnake = () => {
+  if (!direction) return;
+
+  const head = snake.at(-1);
+
+  if (direction == "right") {
+    snake.push({x: head.x + size, y: head.y});
+  }
+  if (direction == "left") {
+    snake.push({x: head.x - size, y: head.y});
+  }
+  if (direction == "up") {
+    snake.push({x: head.x , y: head.y - size});
+  }
+  if (direction == "down") {
+    snake.push({x: head.x , y: head.y + size});
+  }
+  
+  snake.shift();
+}
+
+const gameLoop = () => {
+  
+  clearInterval(loopId);
+
+  ctx.clearRect(0, 0, 600, 600);
+  moveSnake();
+  drawSnake();
+
+  loopId = setTimeout(() => {
+    gameLoop();
+  }, 300);
+}
+
+gameLoop();
+
+document.addEventListener("keydown", ({key}) => {
+  if(key === "ArrowRight" && direction !== "left" ) {
+    direction = "right";
+  }
+  if(key === "ArrowLeft" && direction !== "right") {
+    direction = "left";
+  }
+  if(key === "ArrowUp" && direction !== "down") {
+    direction = "up";
+  }
+  if(key === "ArrowDown" && direction !== "up") {
+    direction = "down";
+  }
+});
