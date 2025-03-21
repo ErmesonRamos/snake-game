@@ -1,51 +1,22 @@
+//Elementos
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
-const score = document.querySelector(".score--value");
-const finalScore = document.querySelector(".final-score > span");
-const menu = document.querySelector(".menu--screen");
-const buttonPlay = document.querySelector(".btn-play");
-
+//Variáveis
+let direction, loopId;
+const snake = [
+  { x: 270, y: 270 },
+  { x: 300, y: 270 },
+];
 const size = 30;
 
-const initialPosition = { x: 270, y: 240 };
-
-let snake = [initialPosition];
-
-const increementScore = () => {
-  score.innerText = parseInt(score.innerText) + 10;
-};
-
-const radomNumber = (min, max) => {
-  return Math.round(Math.random() * (max - min) + min);
-};
-
-const radomPosition = () => {
-  const number = radomNumber(0, canvas.width - size);
-  return Math.round(number / 30) * 30;
-};
-
-const radomColor = () => {
-  const red = radomNumber(0, 255);
-  const green = radomNumber(0, 255);
-  const blue = radomNumber(0, 255);
-
-  return `rgb(${red}, ${green}, ${blue})`;
-};
-
-const food = {
-  x: radomPosition(),
-  y: radomPosition(),
-  color: radomColor(),
-};
-
-let direction, loopId;
-
+//Funções
 const drawSnake = () => {
-  ctx.fillStyle = "#ddd";
   snake.forEach((position, index) => {
     if (index == snake.length - 1) {
       ctx.fillStyle = "white";
+    } else {
+      ctx.fillStyle = "#ddd";
     }
     ctx.fillRect(position.x, position.y, size, size);
   });
@@ -53,132 +24,46 @@ const drawSnake = () => {
 
 const moveSnake = () => {
   if (!direction) return;
-
-  const head = snake.at(-1);
-
-  if (direction == "right") {
+  const head = snake[snake.length - 1];
+  if (direction == "Right") {
     snake.push({ x: head.x + size, y: head.y });
   }
-  if (direction == "left") {
+  if (direction == "Left") {
     snake.push({ x: head.x - size, y: head.y });
   }
-  if (direction == "up") {
+  if (direction == "Up") {
     snake.push({ x: head.x, y: head.y - size });
   }
-  if (direction == "down") {
+  if (direction == "Down") {
     snake.push({ x: head.x, y: head.y + size });
   }
-
   snake.shift();
 };
 
-const drawGrid = () => {
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = "#191919";
-
-  for (let i = 30; i < canvas.width; i += 30) {
-    ctx.beginPath();
-    ctx.lineTo(i, 0);
-    ctx.lineTo(i, 600);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.lineTo(0, i);
-    ctx.lineTo(600, i);
-    ctx.stroke();
+document.addEventListener("keydown", ({ key }) => {
+  if (key === "ArrowRight") {
+    direction = "Right";
   }
-};
-
-const drowFood = () => {
-  const { x, y, color } = food;
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 6;
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, size, size);
-  ctx.shadowBlur = 0;
-};
-
-const checkEat = () => {
-  const head = snake.at(-1);
-
-  if (head.x == food.x && head.y == food.y) {
-    increementScore();
-    snake.push(head);
-
-    let x = radomPosition();
-    let y = radomPosition();
-
-    while (snake.find((position) => position.x == x && position.y == y)) {
-      x = radomPosition();
-      y = radomPosition();
-    }
-
-    food.x = x;
-    food.y = y;
-    food.color = radomColor();
+  if (key === "ArrowLeft") {
+    direction = "Left";
   }
-};
-
-const checkCollision = () => {
-  const head = snake.at(-1);
-  const canvasLimit = canvas.width - size;
-  const nextIndex = snake.length - 2;
-
-  const wallCollision =
-    head.x < 0 || head.x > canvasLimit || head.y < 0 || head.y > canvasLimit;
-
-  const selfCollision = snake.find((position, index) => {
-    return index < nextIndex && position.x == head.x && position.y == head.y;
-  });
-
-  if (wallCollision || selfCollision) {
-    gameOver();
+  if (key === "ArrowUp") {
+    direction = "Up";
   }
-};
-
-const gameOver = () => {
-  direction = undefined;
-  menu.style.display = "flex";
-  finalScore.innerText = score.innerText;
-  canvas.style.filter = "blur(2px)";
-};
+  if (key === "ArrowDown") {
+    direction = "Down";
+  }
+});
 
 const gameLoop = () => {
-  clearInterval(loopId);
-
-  ctx.clearRect(0, 0, 600, 600);
-  drawGrid();
-  drowFood();
-  moveSnake();
+  clearInterval(loopId)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawSnake();
-  checkEat();
-  checkCollision();
+  moveSnake();
 
   loopId = setTimeout(() => {
     gameLoop();
-  }, 300);
-};
+  }, 300)
+}
 
 gameLoop();
-
-document.addEventListener("keydown", ({ key }) => {
-  if (key === "ArrowRight" && direction !== "left") {
-    direction = "right";
-  }
-  if (key === "ArrowLeft" && direction !== "right") {
-    direction = "left";
-  }
-  if (key === "ArrowUp" && direction !== "down") {
-    direction = "up";
-  }
-  if (key === "ArrowDown" && direction !== "up") {
-    direction = "down";
-  }
-});
-
-buttonPlay.addEventListener("click", () => {
-  score.innerText = "00";
-  menu.style.display = "none";
-  canvas.style.filter = "none";
-  snake = [initialPosition];
-});
