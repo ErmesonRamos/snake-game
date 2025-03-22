@@ -9,6 +9,11 @@ const snake = [
   { x: 300, y: 270 },
 ];
 const size = 30;
+const food = {
+  x: 90,
+  y: 90,
+  color: "orange"
+}
 
 //Funções
 const drawSnake = () => {
@@ -40,24 +45,53 @@ const moveSnake = () => {
   snake.shift();
 };
 
+const drawGrid = () => {
+  ctx.strokeStyle = "#191919";
+  ctx.lineWidth = 1;
+  for(let i = size; i < canvas.width; i += size) {
+    //Linhas Verticais
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, canvas.height);
+    ctx.stroke();
+    //Linhas Horizontais
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(canvas.width, i);
+    ctx.stroke();
+  }
+};
+
+const drawFood = () => {
+  const { x, y, color } = food;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 6;
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, size, size);
+  ctx.shadowBlur = 0;
+};
+
 document.addEventListener("keydown", ({ key }) => {
-  if (key === "ArrowRight") {
+  if (key === "ArrowRight" && direction !== "Left") {
     direction = "Right";
   }
-  if (key === "ArrowLeft") {
+  if (key === "ArrowLeft" && direction !== "Right") {
     direction = "Left";
   }
-  if (key === "ArrowUp") {
+  if (key === "ArrowUp" && direction !== "Down") {
     direction = "Up";
   }
-  if (key === "ArrowDown") {
+  if (key === "ArrowDown" && direction !== "Up") {
     direction = "Down";
   }
 });
 
 const gameLoop = () => {
-  clearInterval(loopId)
+  clearInterval(loopId);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawFood();
+  drawGrid();
   drawSnake();
   moveSnake();
 
