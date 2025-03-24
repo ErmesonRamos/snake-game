@@ -81,13 +81,25 @@ const randomPosition = () => {
 };
 
 const checkEat = () => {
+
   const head = snake.at(-1);
+
   if(head.x == food.x && head.y == food.y) {
-    food.x = randomPosition();
-    food.y = randomPosition();
+    snake.push({ x: head.x, y: head.y });
+
+    let x = randomPosition();
+    let y = randomPosition();
+
+    while(snake.find((position) => position.x == x && position.y == y )) {
+      x = randomPosition();
+      y = randomPosition();
+    }
+
+    food.x = x;
+    food.y = y;
     food.color = randomColor();
-    snake.push({x: head.x, y: head.y});
   }
+ 
 };
 
 const food = {
@@ -95,6 +107,26 @@ const food = {
   y: randomPosition(),
   color: randomColor()
 };
+
+const checkCollision = () => {
+  const head = snake.at(-1);
+  const canvasLimit = canvas.width - size;
+  const nextIndex = snake.length - 2;
+
+  const wallCollision = head.x < 0 || head.x > canvasLimit || head.y < 0 || head.y > canvasLimit;
+
+  const selfCollision = snake.find((position, index) => {
+    return index < nextIndex && position.x == head.x && position.y == head.y;
+  });
+
+  if(wallCollision || selfCollision) {
+    gameOver();
+  }
+}
+
+const gameOver = () => {
+  direction = undefined;
+}
 
 document.addEventListener("keydown", ({ key }) => {
   if (key === "ArrowRight" && direction !== "Left") {
@@ -115,11 +147,12 @@ const gameLoop = () => {
   clearInterval(loopId);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  checkEat();
   drawFood();
   drawGrid();
   drawSnake();
   moveSnake();
+  checkCollision();
+  checkEat();
 
   loopId = setTimeout(() => {
     gameLoop();
