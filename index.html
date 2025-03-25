@@ -5,8 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Snake Game</title>
     <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=play_circle" />
   </head>
   <body>
+    <div class="score">score <span class="score--value">00</span></div>
+    <div class="menu-screen">
+      <span class="game--over">game over</span>
+      <span>score:<span class="final-score">00</span></span>
+      <button class="btn-play">
+        Jogar Novamente
+        <span class="material-symbols-outlined">
+          play_circle
+        </span>
+      </button>
+    </div>
     <canvas width="600" height="600">
 
     </canvas>

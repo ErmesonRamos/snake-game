@@ -1,19 +1,25 @@
 //Elementos
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
+const score = document.querySelector(".score--value");
+const scoreFinal = document.querySelector(".final-score");
+const menuScreen = document.querySelector(".menu-screen");
+const btnPlay = document.querySelector(".btn-play");
 
 //Variáveis
 let direction, loopId;
-const snake = [ { x: 240, y: 270 } ];
+let snake = [{ x: 270, y: 300 }];
 const size = 30;
 
 //Funções
+const incrementScore = () => {
+  score.innerText = parseInt(score.innerText) + 10;
+}
 const drawSnake = () => {
+  ctx.fillStyle = "#ddd";
   snake.forEach((position, index) => {
     if (index == snake.length - 1) {
       ctx.fillStyle = "white";
-    } else {
-      ctx.fillStyle = "#ddd";
     }
     ctx.fillRect(position.x, position.y, size, size);
   });
@@ -21,35 +27,35 @@ const drawSnake = () => {
 
 const moveSnake = () => {
   if (!direction) return;
-  const head = snake[snake.length - 1];
-  if (direction == "Right") {
+  const head = snake.at(-1);
+  if (direction == "right") {
     snake.push({ x: head.x + size, y: head.y });
   }
-  if (direction == "Left") {
+  if (direction == "left") {
     snake.push({ x: head.x - size, y: head.y });
   }
-  if (direction == "Up") {
+  if (direction == "up") {
     snake.push({ x: head.x, y: head.y - size });
   }
-  if (direction == "Down") {
+  if (direction == "down") {
     snake.push({ x: head.x, y: head.y + size });
   }
   snake.shift();
 };
 
 const drawGrid = () => {
-  ctx.strokeStyle = "#191919";
   ctx.lineWidth = 1;
-  for(let i = size; i < canvas.width; i += size) {
-    //Linhas Verticais
-    ctx.beginPath();
-    ctx.moveTo(i, 0);
-    ctx.lineTo(i, canvas.height);
-    ctx.stroke();
+  ctx.strokeStyle = "#191919";
+  for(let i = 30; i < canvas.width; i += 30) {
     //Linhas Horizontais
     ctx.beginPath();
-    ctx.moveTo(0, i);
-    ctx.lineTo(canvas.width, i);
+    ctx.lineTo(0, i);
+    ctx.lineTo(600, i);
+    ctx.stroke();
+    //Linhas Verticais
+    ctx.beginPath();
+    ctx.lineTo(i, 0);
+    ctx.lineTo(i, 600);
     ctx.stroke();
   }
 };
@@ -85,7 +91,8 @@ const checkEat = () => {
   const head = snake.at(-1);
 
   if(head.x == food.x && head.y == food.y) {
-    snake.push({ x: head.x, y: head.y });
+    snake.push(head);
+    incrementScore()
 
     let x = randomPosition();
     let y = randomPosition();
@@ -126,22 +133,10 @@ const checkCollision = () => {
 
 const gameOver = () => {
   direction = undefined;
+  menuScreen.style.display = "flex";
+  scoreFinal.textContent = score.textContent;
+  canvas.style.filter = "blur(2px)";
 }
-
-document.addEventListener("keydown", ({ key }) => {
-  if (key === "ArrowRight" && direction !== "Left") {
-    direction = "Right";
-  }
-  if (key === "ArrowLeft" && direction !== "Right") {
-    direction = "Left";
-  }
-  if (key === "ArrowUp" && direction !== "Down") {
-    direction = "Up";
-  }
-  if (key === "ArrowDown" && direction !== "Up") {
-    direction = "Down";
-  }
-});
 
 const gameLoop = () => {
   clearInterval(loopId);
@@ -160,3 +155,25 @@ const gameLoop = () => {
 };
 
 gameLoop();
+
+document.addEventListener("keydown", ({ key }) => {
+  if (key === "ArrowRight" && direction !== "Left") {
+    direction = "right";
+  }
+  if (key === "ArrowLeft" && direction !== "Right") {
+    direction = "left";
+  }
+  if (key === "ArrowUp" && direction !== "Down") {
+    direction = "up";
+  }
+  if (key === "ArrowDown" && direction !== "Up") {
+    direction = "down";
+  }
+});
+
+btnPlay.addEventListener("click", () => {
+  menuScreen.style.display = "none"; 
+  score.innerText = "00";
+  canvas.style.filter = "none";
+  snake = [ { x: 270, y: 300 } ];
+});
